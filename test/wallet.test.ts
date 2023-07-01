@@ -5,6 +5,7 @@ import {
   seedToMnemonic,
   PrivateKey,
   PublicKey,
+  getAddress,
 } from "../src/wallet";
 
 describe("mnemonic and seed", () => {
@@ -44,12 +45,22 @@ describe("public keys", () => {
     expect(actual).toEqual(expected);
   });
 
-  test("public spend key", () => {
+  test("public view key", () => {
     const ks = PrivateKey.fromHex(seed); // Private Spend Key
     const kv = getPrivateViewKey(ks); // Private View Key
-    const Kv = PublicKey.fromPrivateKey(kv);
+    const Kv = PublicKey.fromPrivateKey(kv); // Public View Key
     const expected = "642310ab76a2f94f50ebfb134a01b2e8310a2acf674bb526ee636905fc1b673f";
     const actual = bytesToHex(Kv);
     expect(actual).toEqual(expected);
+  });
+});
+
+describe("address", () => {
+  test("correct address", () => {
+    const seed = "78fdb9c9710ef2144c483c2bce405707f712fe0ec56ccbc92f1c18c6a86f0c05";
+    const addr = getAddress(PrivateKey.fromHex(seed));
+    const expected =
+      "45TQgTZMeP2djdDqwNg2CnWzRchgQ8K8FcBj8XrSPBBVK8Xk1yaJYQpEGU144rGuQdfqYqqaMVtZA7WgXQ1jigmk8BGWKAx";
+    expect(addr).toEqual(expected);
   });
 });

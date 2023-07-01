@@ -2,6 +2,8 @@ import { ed25519 as ed } from "@noble/curves/ed25519";
 import { bytesToNumberLE, hexToBytes, numberToBytesLE } from "@noble/curves/abstract/utils";
 import { Bytes, crc32, keccak, modN } from "./utils";
 import wordlist from "./wordlists/english";
+import { concatBytes } from "@noble/hashes/utils";
+import { base58xmr } from "@scure/base";
 
 const G = ed.ExtendedPoint.BASE;
 
@@ -62,4 +64,14 @@ export const mnemonicToSeed = (mnemonic: string) => {
 
 export const getPrivateViewKey = (privateKey: Bytes) => {
   return PrivateKey.fromScalar(modN(keccak(privateKey)));
+};
+
+export const getAddress = (privateSpendKey: Bytes) => {
+  const privateViewKey = getPrivateViewKey(privateSpendKey);
+  const addr = new Uint8Array(65);
+  addr[0] = 0x12;
+  addr.set(PublicKey.fromPrivateKey(privateSpendKey), 1);
+  addr.set(PublicKey.fromPrivateKey(privateViewKey), 33);
+  const hash = keccak(addr);
+  return base58xmr.encode(concatBytes(addr, hash.slice(0, 4)));
 };

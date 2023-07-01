@@ -1,6 +1,6 @@
 # monero-js
 
-This is a pure javascript implementation monero.
+This is a pure javascript implementation of monero.
 
 > **N.B**: See disclaimer. This library is a work in progress!
 
@@ -10,6 +10,7 @@ This is a pure javascript implementation monero.
 - Convert seed to mnemonic
 - Convert mnemonic to seed
 - Generate Public Spend Key, Private View Key and Public View Key
+- Get Public Address
 
 ## Usage
 
@@ -31,6 +32,7 @@ This library uses the [noble](https://paulmillr.com/noble/) cryptographic librar
 
 - [@noble/curves](https://github.com/paulmillr/noble-curves)
 - [@noble/hashes](https://github.com/paulmillr/noble-hashes)
+- [@scure/base](https://github.com/paulmillr/scure-base)
 
 ## Disclaimer
 
