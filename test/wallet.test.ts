@@ -5,7 +5,9 @@ import {
   seedToMnemonic,
   PrivateKey,
   PublicKey,
-  getAddress,
+  encodeAddress,
+  decodeAddress,
+  validateAddress,
 } from "../src/wallet";
 
 describe("mnemonic and seed", () => {
@@ -56,11 +58,36 @@ describe("public keys", () => {
 });
 
 describe("address", () => {
-  test("correct address", () => {
+  test("encode address", () => {
     const seed = "78fdb9c9710ef2144c483c2bce405707f712fe0ec56ccbc92f1c18c6a86f0c05";
-    const addr = getAddress(PrivateKey.fromHex(seed));
+    const addr = encodeAddress(PrivateKey.fromHex(seed));
     const expected =
       "45TQgTZMeP2djdDqwNg2CnWzRchgQ8K8FcBj8XrSPBBVK8Xk1yaJYQpEGU144rGuQdfqYqqaMVtZA7WgXQ1jigmk8BGWKAx";
     expect(addr).toEqual(expected);
+  });
+
+  test("decode address", () => {
+    const addr =
+      "45TQgTZMeP2djdDqwNg2CnWzRchgQ8K8FcBj8XrSPBBVK8Xk1yaJYQpEGU144rGuQdfqYqqaMVtZA7WgXQ1jigmk8BGWKAx";
+    const expected = {
+      pubSpend: "6523f094e6ddd1db9fa77702188ff7b34c87eeb0c79c94d25b642b7813ee686c",
+      pubView: "642310ab76a2f94f50ebfb134a01b2e8310a2acf674bb526ee636905fc1b673f",
+      checksum: "9d2c8d41",
+    };
+
+    const decoded = decodeAddress(addr);
+    expect(bytesToHex(decoded.pubSpend)).toEqual(expected.pubSpend);
+    expect(bytesToHex(decoded.pubView)).toEqual(expected.pubView);
+    expect(bytesToHex(decoded.checksum)).toEqual(expected.checksum);
+  });
+
+  test("validate address", () => {
+    const valid =
+      "45TQgTZMeP2djdDqwNg2CnWzRchgQ8K8FcBj8XrSPBBVK8Xk1yaJYQpEGU144rGuQdfqYqqaMVtZA7WgXQ1jigmk8BGWKAx";
+    const invalid =
+      "45TQgTZMeP2djdDqwNg2CnWzRchgQ8K8FcBj8XrSPBBVK8Xk1yaJZQpEGU144rGuQdfqYqqaMVtZA7WgXQ1jigmk8BGWKAx";
+
+    expect(validateAddress(valid)).toBeTruthy();
+    expect(validateAddress(invalid)).toBeFalsy();
   });
 });

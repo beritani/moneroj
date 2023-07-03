@@ -10,7 +10,7 @@ This is a pure javascript implementation of monero.
 - Convert seed to mnemonic
 - Convert mnemonic to seed
 - Generate Public Spend Key, Private View Key and Public View Key
-- Get Public Address
+- Encode, Decode and Validate Public Address
 
 ## Usage
 

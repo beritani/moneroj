@@ -2,7 +2,7 @@ import { ed25519 as ed } from "@noble/curves/ed25519";
 import { bytesToNumberLE, hexToBytes, numberToBytesLE } from "@noble/curves/abstract/utils";
 import { Bytes, crc32, keccak, modN } from "./utils";
 import wordlist from "./wordlists/english";
-import { concatBytes } from "@noble/hashes/utils";
+import { bytesToHex, checkOpts, concatBytes } from "@noble/hashes/utils";
 import { base58xmr } from "@scure/base";
 
 const G = ed.ExtendedPoint.BASE;
@@ -66,7 +66,7 @@ export const getPrivateViewKey = (privateKey: Bytes) => {
   return PrivateKey.fromScalar(modN(keccak(privateKey)));
 };
 
-export const getAddress = (privateSpendKey: Bytes) => {
+export const encodeAddress = (privateSpendKey: Bytes) => {
   const privateViewKey = getPrivateViewKey(privateSpendKey);
   const addr = new Uint8Array(65);
   addr[0] = 0x12;
@@ -74,4 +74,25 @@ export const getAddress = (privateSpendKey: Bytes) => {
   addr.set(PublicKey.fromPrivateKey(privateViewKey), 33);
   const hash = keccak(addr);
   return base58xmr.encode(concatBytes(addr, hash.slice(0, 4)));
+};
+
+export const decodeAddress = (address: string) => {
+  const decoded = base58xmr.decode(address);
+  const network = decoded.slice(0, 1);
+  const pubSpend = decoded.slice(1, 33);
+  const pubView = decoded.slice(33, 65);
+  const checksum = decoded.slice(65);
+
+  return {
+    network,
+    pubSpend,
+    pubView,
+    checksum,
+  };
+};
+
+export const validateAddress = (address: string) => {
+  const { network, pubSpend, pubView, checksum } = decodeAddress(address);
+  const hash = keccak(concatBytes(network, pubSpend, pubView));
+  return bytesToHex(checksum) === bytesToHex(hash.slice(0, 4));
 };
