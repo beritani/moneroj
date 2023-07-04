@@ -1,7 +1,7 @@
 {
-  "name": "monero",
-  "version": "0.0.1",
-  "description": "",
+  "name": "moneroj",
+  "version": "0.0.2",
+  "description": "Pure JavaScript implementation of monero",
   "files": [
     "*.js",
     "*.js.map",
@@ -11,7 +11,7 @@
   "author": "beritani",
   "license": "MIT",
   "repository": {
-    "url": "https://github.com/beritani/monero-js",
+    "url": "https://github.com/beritani/moneroj",
     "type": "git"
   },
   "scripts": {
@@ -46,9 +46,12 @@
   },
   "keywords": [
     "monero",
+    "moneroj",
+    "wallet",
     "privacy",
     "cryptocurrency",
     "crypto",
+    "currency",
     "ed25519",
     "keccak"
   ]

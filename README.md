@@ -1,4 +1,4 @@
-# monero-js
+# moneroj
 
 This is a pure javascript implementation of monero.
 
@@ -17,7 +17,7 @@ This is a pure javascript implementation of monero.
 ### Mnemonic to Seed
 
 ```ts
-import { mnemonicToSeed } from "monero-js/wallet";
+import { mnemonicToSeed } from "moneroj/wallet";
 
 const mnemonic =
   "inbound gather dads maze rising enough irritate gels dizzy novelty deity flippant ladder jigsaw anchor bawled nodes recipe inline diet perfect identity bakery bobsled diet";
