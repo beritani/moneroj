@@ -1,13 +1,22 @@
 import { ed25519 as ed } from "@noble/curves/ed25519";
-import { bytesToNumberLE, hexToBytes, numberToBytesLE } from "@noble/curves/abstract/utils";
-import { Bytes, crc32, keccak, modN } from "./utils";
-import wordlist from "./wordlists/english";
-import { bytesToHex, checkOpts, concatBytes } from "@noble/hashes/utils";
+import {
+  bytesToNumberLE,
+  hexToBytes,
+  numberToBytesLE,
+} from "@noble/curves/abstract/utils";
+import { type Bytes, crc32, keccak, modN } from "./utils.ts";
+import wordlist from "./wordlists/english.ts";
+import { bytesToHex, concatBytes } from "@noble/hashes/utils";
 import { base58xmr } from "@scure/base";
 
 const G = ed.ExtendedPoint.BASE;
 
-export const PrivateKey = {
+interface PrivateKey {
+  fromScalar(scalar: bigint): Bytes;
+  fromHex(hex: string): Bytes;
+}
+
+export const PrivateKey: PrivateKey = {
   fromScalar(scalar: bigint) {
     return numberToBytesLE(scalar, 32);
   },
@@ -16,7 +25,12 @@ export const PrivateKey = {
   },
 };
 
-export const PublicKey = {
+interface PublicKey {
+  fromScalar(scalar: bigint): Bytes;
+  fromPrivateKey(privateKey: Bytes): Bytes;
+}
+
+export const PublicKey: PublicKey = {
   fromScalar(scalar: bigint) {
     return G.multiply(scalar).toRawBytes();
   },
@@ -25,16 +39,20 @@ export const PublicKey = {
   },
 };
 
-export const seedToMnemonic = (seed: Bytes) => {
+export const seedToMnemonic = (seed: Bytes): string[] => {
   const mnemonic: string[] = [];
 
   const n = BigInt(wordlist.length);
   for (let i = 0; i < seed.length / 4; i++) {
     const x = bytesToNumberLE(seed.slice(i * 4, i * 4 + 4));
-    let w1 = x % n;
-    let w2 = (x / n + w1) % n;
-    let w3 = (x / n / n + w2) % n;
-    mnemonic.push(wordlist[Number(w1)], wordlist[Number(w2)], wordlist[Number(w3)]);
+    const w1 = x % n;
+    const w2 = (x / n + w1) % n;
+    const w3 = (x / n / n + w2) % n;
+    mnemonic.push(
+      wordlist[Number(w1)],
+      wordlist[Number(w2)],
+      wordlist[Number(w3)],
+    );
   }
 
   const trimmed = mnemonic.map((w) => w.slice(0, 3)).join("");
@@ -43,7 +61,7 @@ export const seedToMnemonic = (seed: Bytes) => {
   return mnemonic;
 };
 
-export const mnemonicToSeed = (mnemonic: string) => {
+export const mnemonicToSeed = (mnemonic: string): Bytes => {
   const n = wordlist.length;
   const words = mnemonic.split(" ");
   const seed = new Uint8Array(32);
@@ -62,11 +80,11 @@ export const mnemonicToSeed = (mnemonic: string) => {
   return seed;
 };
 
-export const getPrivateViewKey = (privateKey: Bytes) => {
+export const getPrivateViewKey = (privateKey: Bytes): Bytes => {
   return PrivateKey.fromScalar(modN(keccak(privateKey)));
 };
 
-export const encodeAddress = (privateSpendKey: Bytes) => {
+export const encodeAddress = (privateSpendKey: Bytes): string => {
   const privateViewKey = getPrivateViewKey(privateSpendKey);
   const addr = new Uint8Array(65);
   addr[0] = 0x12;
@@ -76,7 +94,14 @@ export const encodeAddress = (privateSpendKey: Bytes) => {
   return base58xmr.encode(concatBytes(addr, hash.slice(0, 4)));
 };
 
-export const decodeAddress = (address: string) => {
+interface DecodedAddress {
+  network: Bytes;
+  pubSpend: Bytes;
+  pubView: Bytes;
+  checksum: Bytes;
+}
+
+export const decodeAddress = (address: string): DecodedAddress => {
   const decoded = base58xmr.decode(address);
   const network = decoded.slice(0, 1);
   const pubSpend = decoded.slice(1, 33);
@@ -91,8 +116,8 @@ export const decodeAddress = (address: string) => {
   };
 };
 
-export const validateAddress = (address: string) => {
+export const validateAddress = (address: string): boolean => {
   const { network, pubSpend, pubView, checksum } = decodeAddress(address);
-  const hash = keccak(concatBytes(network, pubSpend, pubView));
+  const hash = keccak(network, pubSpend, pubView);
   return bytesToHex(checksum) === bytesToHex(hash.slice(0, 4));
 };

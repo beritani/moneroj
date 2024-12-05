@@ -28,7 +28,8 @@ const seed = mnemonicToSeed(mnemonic);
 
 ## Attribution
 
-This library uses the [noble](https://paulmillr.com/noble/) cryptographic libraries by [@paulmillr](https://github.com/paulmillr). Huge thanks!
+This library uses the [noble](https://paulmillr.com/noble/) cryptographic
+libraries by [@paulmillr](https://github.com/paulmillr). Huge thanks!
 
 - [@noble/curves](https://github.com/paulmillr/noble-curves)
 - [@noble/hashes](https://github.com/paulmillr/noble-hashes)
@@ -36,7 +37,8 @@ This library uses the [noble](https://paulmillr.com/noble/) cryptographic librar
 
 ## Disclaimer
 
-This library is a work in progress and has not been audited or verified by anyone qualified.
+This library is a work in progress and has not been audited or verified by
+anyone qualified.
 
 ## License
 
